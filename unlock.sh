@@ -1,4 +1,3 @@
 . ./dockrc.sh
 
-wallet="$(basename $(pwd))"
-cleos wallet unlock -n $wallet --password wallet.txt
+cleos wallet unlock -n $wallet --password $(cat wallet.txt)

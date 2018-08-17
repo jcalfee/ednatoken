@@ -19,16 +19,18 @@ cleos create account eosio overflow EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYq
 cleos push action ednatoken create '["staker", "1300000000.0000 EDNA"]' -p ednatoken
 cleos push action ednatoken setoverflow '["overflow"]' -p ednatoken
 
+cleos push action ednatoken issue '["ednatoken",  "1000000000.0000 EDNA", "memo"]' -p staker
+
 cleos push action ednatoken issue '["staker",  "200000000.0000 EDNA", "memo"]' -p staker
 cleos push action ednatoken issue '["staker1", "200000000.0000 EDNA", "memo"]' -p staker
 cleos push action ednatoken issue '["staker2", "200000000.0000 EDNA", "memo"]' -p staker
 cleos push action ednatoken issue '["staker3", "200000000.0000 EDNA", "memo"]' -p staker
 cleos push action ednatoken issue '["staker4", "200000000.0000 EDNA", "memo"]' -p staker
 
-cleos push action ednatoken addstake '["staker1", 1, "200000000.0000 EDNA"]' -p staker1
-cleos push action ednatoken addstake '["staker2", 1, "66663666.0000 EDNA"]' -p staker2
-cleos push action ednatoken addstake '["staker3", 1, "88882388.0000 EDNA"]' -p staker3
-cleos push action ednatoken addstake '["staker4", 1, "200000000.0000 EDNA"]' -p staker4
+# cleos push action ednatoken addstake '["staker1", 1, "200000000.0000 EDNA"]' -p staker1
+# cleos push action ednatoken addstake '["staker2", 1, "66663666.0000 EDNA"]' -p staker2
+# cleos push action ednatoken addstake '["staker3", 1, "88882388.0000 EDNA"]' -p staker3
+# cleos push action ednatoken addstake '["staker4", 1, "200000000.0000 EDNA"]' -p staker4
 
 cleos push action ednatoken process '[0]' -p ednatoken
 

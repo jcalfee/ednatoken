@@ -46,7 +46,7 @@ void ednatoken::issue( account_name to, asset quantity, string memo )
 
     eosio_assert( quantity.symbol == st.supply.symbol, "symbol precision mismatch" );
     eosio_assert( quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
-    
+
 
     statstable.modify( st, 0, [&]( auto& s ) {
        s.supply += quantity;
@@ -125,7 +125,7 @@ void ednatoken::process (const uint8_t    _pay_indicator) {
         if (itr->stake_due <= now()) {
             total_stake += itr->staked;
             if (itr->stake_period == WEEKLY) {
-                total_shares += (WEEK_MULTIPLIERX100 * itr->staked.amount / 10000 / 100);   
+                total_shares += (WEEK_MULTIPLIERX100 * itr->staked.amount / 10000 / 100);
             } else if (itr->stake_period == MONTHLY) {
                 total_shares += (MONTH_MULTIPLIERX100 * itr->staked.amount / 10000 / 100);
             } else if (itr->stake_period == QUARTERLY) {
@@ -134,7 +134,7 @@ void ednatoken::process (const uint8_t    _pay_indicator) {
         }
         itr++;
     }
-    
+
     auto weekly_base = asset{BASE_WEEKLY, string_to_symbol(4, "EDNA")};
     print ("Weekly Base         : ", weekly_base, "\n");
 
@@ -143,11 +143,11 @@ void ednatoken::process (const uint8_t    _pay_indicator) {
     print ("Total Stake         : ", total_stake, "\n");
     print ("Supplied Token      : ", supply, "\n");
     print ("Total Shares        : ", total_shares, "\n");
-  
+
     auto perc_stakedx100 = total_stake / supply;
     print ("Perc Stakedx100     : ", perc_stakedx100, "\n");
 
-    auto base_payout = perc_stakedx100 * weekly_base.amount / 10000 ; 
+    auto base_payout = perc_stakedx100 * weekly_base.amount / 10000 ;
     print ("Base Payout         : ", base_payout, "\n");
 
     config_table c_t (_self, _self);
@@ -165,10 +165,10 @@ void ednatoken::process (const uint8_t    _pay_indicator) {
     }
 
     print ("Total Payout        : ", total_payout, "\n");
-    
+
     auto unclaimed_tokens = weekly_base - total_payout;
     print ("Unclaimed Tokens    : ", unclaimed_tokens, "\n");
-    
+
     // Send unclaimed tokens to the overflow account
     if (_pay_indicator != 0) {
         transfer (_self, c_itr->overflow, unclaimed_tokens, "Unclaimed Tokens");
@@ -179,13 +179,13 @@ void ednatoken::process (const uint8_t    _pay_indicator) {
         print ("Stakes processed, total_payout == 0, nothing to pay.\n");
         return;
     }
-    
+
     itr = s_t.begin();
     while (itr != s_t.end()) {
         print ("------  Reward  ---------------\n");
         print ("TO      : ", name{itr->stake_account}, "\n");
         asset payout;
-        
+
         if (itr->stake_due <= now() && itr-> staked.amount > 0) {
             if (itr->stake_period == WEEKLY) {
                 payout = (WEEK_MULTIPLIERX100 * itr->staked.amount / 100 ) / total_shares * total_payout / 10000;
@@ -194,23 +194,26 @@ void ednatoken::process (const uint8_t    _pay_indicator) {
             } else if (itr->stake_period == QUARTERLY) {
                 payout = (QUARTER_MULTIPLIERX100 * itr->staked.amount / 100 ) / total_shares * total_payout / 10000;
             }
-      
+
             // print reward
             print ("PAYOUT  : ", payout, "\n");
 
             // actually increase the staked quantity and reset stake due dates
-            if (payout.amount > 0 && _pay_indicator != 0) {  
+            if (payout.amount > 0 && _pay_indicator != 0) {
                 s_t.modify(itr, _self, [&](auto &s) {
                     s.staked += payout;  // increases existing stake
                     sub_balance(_self, payout);  // decrement payout from _self
                     //  OR you can send reward to the originating account
                     //  transfer (_self, itr->stake_account, payout, "EDNA Stake Rewards");
                     if (itr->stake_period == WEEKLY) {
-                        s.stake_due = now() + (60 * 60 * 24 * 7);
+                        s.stake_due     = now() + 1;
+                        // s.stake_due = now() + (60 * 60 * 24 * 7);
                     } else if (itr->stake_period == MONTHLY) {
-                        s.stake_due = now() + (60 * 60 * 24 * 7 * 4);
+                        s.stake_due     = now() + 2;
+                        // s.stake_due = now() + (60 * 60 * 24 * 7 * 4);
                     } else if (itr->stake_period == QUARTERLY) {
-                        s.stake_due = now() + (60 * 60 * 24 * 7 * 12);
+                        s.stake_due     = now() + 3;
+                        // s.stake_due = now() + (60 * 60 * 24 * 7 * 12);
                     }
                 });
             }
@@ -219,6 +222,9 @@ void ednatoken::process (const uint8_t    _pay_indicator) {
     }
 }
 
+/**
+  You can unstake at anytime but you reset your staking period.
+*/
 void ednatoken::unstake (const uint64_t _stake_id) {
     stake_table s_t (_self, _self);
     auto itr = s_t.find (_stake_id);
@@ -244,7 +250,7 @@ void ednatoken::addstake (account_name _stake_account,
     eosio_assert(_stake_period >= 1 && _stake_period <= 3, "Invalid stake period.");
 
     sub_balance (_stake_account, _staked);
-    
+
     stake_table s_t (_self, _self);
     s_t.emplace (_stake_account, [&](auto& s) {
         s.stake_id  = s_t.available_primary_key();
@@ -253,13 +259,13 @@ void ednatoken::addstake (account_name _stake_account,
         s.staked        = _staked;
         s.stake_date    = now();
         if (_stake_period == WEEKLY) {
-            s.stake_due     = now() + 10;
+            s.stake_due     = now() + 1;
             //s.stake_due = now() + (60 * 60 * 24 * 7);
         } else if (_stake_period == MONTHLY) {
-            s.stake_due     = now() + 20;
+            s.stake_due     = now() + 2;
             //s.stake_due = now() + (60 * 60 * 24 * 7 * 4);
         } else if (_stake_period == QUARTERLY) {
-            s.stake_due     = now() + 45;
+            s.stake_due     = now() + 3;
             //s.stake_due = now() + (60 * 60 * 24 * 7 * 12);
         }
     });
@@ -295,4 +301,3 @@ void ednatoken::add_balance( account_name owner, asset value, account_name ram_p
       });
    }
 }
-

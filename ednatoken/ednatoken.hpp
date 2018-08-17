@@ -40,13 +40,13 @@ class ednatoken : public contract
     // @abi action
     void setoverflow (account_name    _overflow);
 
-    // @abi action 
-    void addbonus ( account_name    _sender, 
+    // @abi action
+    void addbonus ( account_name    _sender,
                     asset           _bonus);
 
     // @abi action
     void process (const uint8_t           _pay_indicator) ;
-    
+
     inline asset get_supply(symbol_name sym) const;
 
     inline asset get_balance(account_name owner, symbol_name sym) const;

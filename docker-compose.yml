@@ -5,13 +5,9 @@ services:
     build:
       context: .
     image: eosio/eos-dev:v1.1.1
-    command: /opt/eosio/bin/nodeosd.sh --delete-all-blocks --contracts-console --data-dir /opt/eosio/bin/data-dir -e --http-alias=nodeosd:8888 --http-alias=127.0.0.1:8888 --http-alias=localhost:8888 --mongodb-wipe --mongodb-uri mongodb://mongodb:27017/EOS --http-validate-host=false
+    command: /opt/eosio/bin/nodeosd.sh --delete-all-blocks --contracts-console --data-dir /opt/eosio/bin/data-dir -e --http-alias=nodeosd:8888 --http-alias=127.0.0.1:8888 --http-alias=localhost:8888 --mongodb-wipe --mongodb-uri mongodb://mongodb:27017/EOS --http-validate-host=false --access-control-allow-origin "*" --verbose-http-errors
     hostname: nodeosd
     restart: always
-    links:
-      - mongodb
-    # networks:
-    #   - eva-api_eva-containers-network
     ports:
       - 8888:8888
       - 9876:9876
@@ -27,8 +23,6 @@ services:
     command: /opt/eosio/bin/keosd --wallet-dir /opt/eosio/bin/data-dir --http-server-address=127.0.0.1:8900 --http-alias=keosd:8900 --http-alias=localhost:8900
     hostname: keosd
     restart: always
-    # networks:
-    #   - eva-api_eva-containers-network
     links:
       - nodeosd
     volumes:
@@ -36,27 +30,8 @@ services:
       - keosd-data-volume:/opt/eosio/bin/data-dir
     stop_grace_period: 10m
 
-  mongodb:
-    image: mongo:latest
-    hostname: mongodb
-    volumes:
-      - mongodb:/data/db
-      - mongodb_config:/data/configdb
-    # networks:
-    #   - eva-api_eva-containers-network
-    ports:
-        - 27017:27017
-    command: mongod
-    stop_grace_period: 10m
-
 volumes:
   nodeos-data-volume:
     external: true
   keosd-data-volume:
     external: true
-  mongodb:
-  mongodb_config:
-
-# networks:
-#   eva-api_eva-containers-network:
-#      external: true
