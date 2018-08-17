@@ -1,0 +1,22 @@
+{
+  "name": "ednatoken",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcalfee/ednatoken.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jcalfee/ednatoken/issues"
+  },
+  "homepage": "https://github.com/jcalfee/ednatoken#readme",
+  "dependencies": {
+    "eosjs": "^16.0.2"
+  }
+}
